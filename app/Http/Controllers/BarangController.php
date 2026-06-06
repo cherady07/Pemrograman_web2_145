@@ -2,22 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Barang;
+// 1. Sesuaikan import Form Request ke subfolder yang baru
 use App\Http\Requests\StoreBarangRequest;
+use App\Http\Requests\UpdateBarangRequest; 
 use App\Services\BarangService;
-use Illuminate\Http\Request;
 use Exception;
 
 class BarangController extends Controller
 {
-    // Cukup tulis constructor ringkas ini (Hapus protected $barangService di atasnya)
+    // Constructor untuk Dependency Injection ke Service Layer
     public function __construct(
         protected BarangService $barangService
     ) {}
 
     public function index()
     {
-        // Menggunakan $this->barangService dengan aman
         $barangs = Barang::all();
         
         return response()->json([
@@ -28,6 +27,7 @@ class BarangController extends Controller
 
     public function store(StoreBarangRequest $request)
     {
+        // Mengambil data yang sudah otomatis lolos validasi dan sanitasi
         $validated = $request->validated();
 
         try {
@@ -45,13 +45,11 @@ class BarangController extends Controller
         }
     }
 
-    public function update(Request $request, Barang $barang)
+    // 2. Ganti 'Request $request' menjadi 'UpdateBarangRequest $request'
+    public function update(UpdateBarangRequest $request, Barang $barang)
     {
-        $validated = $request->validate([
-            'nama_barang' => 'required|string|max:255',
-            'harga' => 'required|numeric|min:0',
-            'stok' => 'required|integer|min:0',
-        ]);
+        // Validasi manual di sini dihapus karena sudah di-handle oleh UpdateBarangRequest
+        $validated = $request->validated();
 
         try {
             $barangUpdated = $this->barangService->updateBarang($barang, $validated);
